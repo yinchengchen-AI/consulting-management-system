@@ -1,0 +1,64 @@
+# ============================================
+# 应用配置
+# ============================================
+app:
+  name: ConsultingSystem
+  env: development
+  version: 1.0.0
+  port: 8080
+
+# ============================================
+# 数据库配置 (PostgreSQL)
+# ============================================
+database:
+  host: ${DB_HOST:localhost}
+  port: ${DB_PORT:5432}
+  user: ${DB_USER:consulting}
+  password: ${DB_PASSWORD:consulting123}
+  dbname: ${DB_NAME:consulting_db}
+  sslmode: ${DB_SSL_MODE:disable}
+  max_open_conns: ${DB_MAX_OPEN_CONNS:25}
+  max_idle_conns: ${DB_MAX_IDLE_CONNS:5}
+  conn_max_lifetime: ${DB_CONN_MAX_LIFETIME:5m}
+
+# ============================================
+# Redis 配置
+# ============================================
+redis:
+  host: ${REDIS_HOST:localhost}
+  port: ${REDIS_PORT:6379}
+  password: ${REDIS_PASSWORD:}
+  db: ${REDIS_DB:0}
+  pool_size: ${REDIS_POOL_SIZE:10}
+
+# ============================================
+# JWT 配置
+# ============================================
+jwt:
+  secret: ${JWT_SECRET:your-super-secret-jwt-key-change-this-in-production}
+  expire_hours: ${JWT_EXPIRE_HOURS:24}
+  refresh_hours: ${JWT_REFRESH_HOURS:168}
+
+# ============================================
+# 日志配置
+# ============================================
+log:
+  level: ${LOG_LEVEL:debug}
+  format: ${LOG_FORMAT:json}
+  output: ${LOG_OUTPUT:stdout}
+
+# ============================================
+# CORS 配置
+# ============================================
+cors:
+  allow_origins: ${CORS_ALLOW_ORIGINS:http://localhost:5173,http://localhost:3000}
+  allow_methods: ${CORS_ALLOW_METHODS:GET,POST,PUT,DELETE,OPTIONS}
+  allow_headers: ${CORS_ALLOW_HEADERS:Authorization,Content-Type,X-Request-ID}
+
+# ============================================
+# 文件上传配置
+# ============================================
+upload:
+  max_size: ${UPLOAD_MAX_SIZE:10485760}
+  allowed_types: ${UPLOAD_ALLOWED_TYPES:image/jpeg,image/png,image/gif,application/pdf}
+  storage_path: ${UPLOAD_STORAGE_PATH:./uploads}

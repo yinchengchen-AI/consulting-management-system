@@ -1,0 +1,100 @@
+# ============================================
+# Docker Compose 开发环境覆盖配置
+# ============================================
+# 说明: 此文件自动被 docker-compose 加载，用于开发环境配置
+# 生产环境请使用: docker-compose -f docker-compose.yml -f docker-compose.prod.yml up -d
+# ============================================
+
+version: '3.8'
+
+services:
+  # ============================================
+  # 后端开发服务（热重载）
+  # ============================================
+  backend:
+    build:
+      target: builder  # 使用构建阶段镜像
+    volumes:
+      # 挂载源代码，支持热重载
+      - ./backend:/app
+      # 挂载 Go 模块缓存
+      - go_mod_cache:/go/pkg/mod
+    environment:
+      - APP_ENV=development
+      - LOG_LEVEL=debug
+      # 启用热重载
+      - AIR_CONFIG=.air.toml
+    command: ["air", "-c", ".air.toml"]  # 使用 air 进行热重载
+    # 或者使用 go run
+    # command: ["go", "run", "cmd/main.go"]
+
+  # ============================================
+  # 前端开发服务（热重载）
+  # ============================================
+  frontend:
+    build:
+      target: builder  # 使用构建阶段镜像
+    volumes:
+      # 挂载源代码
+      - ./frontend:/app
+      # 挂载 node_modules 缓存
+      - node_modules_cache:/app/node_modules
+    environment:
+      - NODE_ENV=development
+      - VITE_API_BASE_URL=http://localhost:8080/api/v1
+    ports:
+      - "5173:5173"  # Vite 开发服务器端口
+    command: ["npm", "run", "dev", "--", "--host", "0.0.0.0"]
+
+  # ============================================
+  # 数据库管理工具 (可选)
+  # ============================================
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: consulting-pgadmin
+    restart: unless-stopped
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@consulting.com
+      PGADMIN_DEFAULT_PASSWORD: admin123
+      PGADMIN_CONFIG_SERVER_MODE: 'False'
+    ports:
+      - "5050:80"
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+    depends_on:
+      - postgres
+    networks:
+      - consulting-network
+    profiles:
+      - tools  # 使用 --profile tools 启动
+
+  # ============================================
+  # Redis 管理工具 (可选)
+  # ============================================
+  redisinsight:
+    image: redis/redisinsight:latest
+    container_name: consulting-redisinsight
+    restart: unless-stopped
+    ports:
+      - "5540:5540"
+    volumes:
+      - redisinsight_data:/data
+    depends_on:
+      - redis
+    networks:
+      - consulting-network
+    profiles:
+      - tools  # 使用 --profile tools 启动
+
+# ============================================
+# 开发环境数据卷
+# ============================================
+volumes:
+  go_mod_cache:
+    driver: local
+  node_modules_cache:
+    driver: local
+  pgadmin_data:
+    driver: local
+  redisinsight_data:
+    driver: local
